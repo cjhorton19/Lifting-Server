@@ -42,6 +42,23 @@ function getFormattedDate() {
   return formattedDate;
 }
 
+app.post('/createExercises', async (req, res) => {
+  const {exercises} = req.body;
+  let values = '';
+  for (let i = 0; i < exercises.length; i++) {
+    const exercise = exercises[i];
+    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, 1)`;
+    
+    if (i !== exercises.length - 1) {
+      values += ', ';
+    }
+  }
+  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, user_id)
+  VALUES ${values};`;
+  console.log(query);
+  excecuteQuery(query, res);
+});
+
 app.post('/createUser', async (req, res) => {
   const query = `INSERT INTO users (weight, is_rep_range_suggested)
   VALUES (165, true);`;
@@ -70,23 +87,6 @@ app.post('/createExerciseId', async (req, res) => {
     `,
     values: [exercise],
   };
-  console.log(query);
-  excecuteQuery(query, res);
-});
-
-app.post('/createExercises', async (req, res) => {
-  const {exercises} = req.body;
-  let values = '';
-  for (let i = 0; i < exercises.length; i++) {
-    const exercise = exercises[i];
-    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, 1)`;
-    
-    if (i !== exercises.length - 1) {
-      values += ', ';
-    }
-  }
-  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, user_id)
-  VALUES ${values};`;
   console.log(query);
   excecuteQuery(query, res);
 });
