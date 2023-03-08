@@ -87,6 +87,7 @@ for (let i = 0; i < exercises.length; i++) {
 }
 const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, user_id)
 VALUES ${values};`;
+console.log(query);
 excecuteQuery(query, res);
 });
 
