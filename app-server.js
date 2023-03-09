@@ -47,7 +47,7 @@ app.post('/createExercises', async (req, res) => {
   let values = '';
   for (let i = 0; i < exercises.length; i++) {
     const exercise = exercises[i];
-    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, ${exercise.equipment}, ${exercise.setId}, 1)`;
+    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, '${exercise.equipment}', ${exercise.setId}, 1)`;
     
     if (i !== exercises.length - 1) {
       values += ', ';
