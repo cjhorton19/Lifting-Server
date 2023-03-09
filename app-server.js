@@ -47,13 +47,13 @@ app.post('/createExercises', async (req, res) => {
   let values = '';
   for (let i = 0; i < exercises.length; i++) {
     const exercise = exercises[i];
-    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, 1)`;
+    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, ${exercise.equipment}, ${exercise.setId}, 1)`;
     
     if (i !== exercises.length - 1) {
       values += ', ';
     }
   }
-  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, user_id)
+  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, equipment, set_id, user_id)
   VALUES ${values};`;
   console.log(query);
   excecuteQuery(query, res);
