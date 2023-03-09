@@ -42,20 +42,32 @@ function getFormattedDate() {
   return formattedDate;
 }
 
+function getFormattedDateTime() {
+  const myDate = new Date();
+  const year = myDate.getFullYear();
+  const month = ('0' + (myDate.getMonth() + 1)).slice(-2);
+  const day = ('0' + myDate.getDate()).slice(-2);
+  const hour = ('0' + myDate.getHours()).slice(-2);
+  const minute = ('0' + myDate.getMinutes()).slice(-2);
+  const second = ('0' + myDate.getSeconds()).slice(-2);
+  const formattedDate = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+  return formattedDate;
+}
+
+
 app.post('/createExercises', async (req, res) => {
   const {exercises} = req.body;
   let values = '';
   for (let i = 0; i < exercises.length; i++) {
     const exercise = exercises[i];
-    values += `('${getFormattedDate()}', '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, '${exercise.equipment}', ${exercise.setId}, 1)`;
+    values += `('${getFormattedDate()}', TO_TIMESTAMP('${getFormattedDateTime()}', 'YYYY-MM-DD HH24:MI:SS'), '${exercise.muscleGroup}', '${exercise.exercise}', ${exercise.reps}, ${exercise.weight}, '${exercise.equipment}', ${exercise.setId}, 1)`;
     
     if (i !== exercises.length - 1) {
       values += ', ';
     }
   }
-  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, equipment, set_id, user_id)
+  const query = `INSERT INTO exercises (date, dateTime, muscle_group, exercise, reps, weight, equipment, set_id, user_id)
   VALUES ${values};`;
-  console.log(query);
   excecuteQuery(query, res);
 });
 
@@ -68,9 +80,8 @@ app.post('/createUser', async (req, res) => {
 app.post('/createExercise', async (req, res) => {
   console.log(req.body);
   const {muscleGroup, exercise, reps, weight} = req.body;
-  const query = `INSERT INTO exercises (date, muscle_group, exercise, reps, weight, user_id)
-  VALUES ('${getFormattedDate()}', '${muscleGroup}', '${exercise}', ${reps}, ${weight}, 1);`;
-  console.log(query);
+  const query = `INSERT INTO exercises (date, dateTime, muscle_group, exercise, reps, weight, user_id)
+  VALUES ('${getFormattedDate()}', TO_TIMESTAMP('${getFormattedDateTime()}', 'YYYY-MM-DD HH24:MI:SS'), '${muscleGroup}', '${exercise}', ${reps}, ${weight}, 1);`;
   excecuteQuery(query, res);
 });
 
@@ -87,11 +98,27 @@ app.post('/createExerciseId', async (req, res) => {
     `,
     values: [exercise],
   };
-  console.log(query);
   excecuteQuery(query, res);
 });
 
 //Below is the read server
+app.get('/weight', async (req, res) => {
+  const { equipment, muscle_group, exercise } = req.query;
+  const query = `SELECT weight, reps, set_id, dateTime
+  FROM (
+    SELECT set_id, equipment, muscle_group, exercise, weight, reps, dateTime
+    FROM exercises
+    WHERE equipment = '${equipment}'
+    AND muscle_group = '${muscle_group}'
+    AND exercise = '${exercise}'
+    and dateTime notnull
+    ORDER BY dateTime desc
+    limit 4
+  ) subquery
+  order by set_id;`
+  excecuteQuery(query, res);
+});
+
 app.get('/autocomplete', async (req, res) => {
   const { input } = req.query;
   const query = {
